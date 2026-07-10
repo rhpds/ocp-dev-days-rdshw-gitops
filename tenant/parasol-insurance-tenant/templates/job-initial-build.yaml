@@ -107,8 +107,12 @@ spec:
                     secret:
                       secretName: quay-push-secret
                   - name: maven-cache
-                    persistentVolumeClaim:
-                      claimName: maven-cache
-                    restartPolicy: Never
+                    volumeClaimTemplate:
+                      spec:
+                        accessModes:
+                          - ReadWriteOnce
+                        resources:
+                          requests:
+                            storage: 1Gi
               PIPELINERUN
               echo "Initial prod tag PipelineRun created."
