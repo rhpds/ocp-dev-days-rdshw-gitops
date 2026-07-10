@@ -71,4 +71,43 @@ spec:
                       claimName: maven-cache
               PIPELINERUN
               echo "Initial PipelineRun created."
-      restartPolicy: Never
+              echo "Creating initial prod tag PipelineRun..."
+              cat <<'PIPELINERUN' | oc create -f -
+              apiVersion: tekton.dev/v1
+              kind: PipelineRun
+              metadata:
+                generateName: parasol-insurance-tag-promote-
+                namespace: {{ include "parasol-insurance-tenant.prefix" . }}-build
+              spec:
+                params:
+                - name: git-tag
+                  value: '1.0'
+                - name: git-revision
+                  value: main
+                pipelineRef:
+                  name: parasol-insurance-tag-promote
+                taskRunTemplate:
+                  serviceAccountName: pipeline
+                timeouts:
+                  pipeline: 1h0m0s
+                workspaces:
+                  - name: source
+                    volumeClaimTemplate:
+                      spec:
+                        accessModes:
+                          - ReadWriteOnce
+                        resources:
+                          requests:
+                            storage: 2Gi
+                  - name: basic-auth
+                    secret:
+                      secretName: gitlab-basic-auth
+                  - name: dockerconfig
+                    secret:
+                      secretName: quay-push-secret
+                  - name: maven-cache
+                    persistentVolumeClaim:
+                      claimName: maven-cache
+                    restartPolicy: Never
+              PIPELINERUN
+              echo "Initial prod tag PipelineRun created."
