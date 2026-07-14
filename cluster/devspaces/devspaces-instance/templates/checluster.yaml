@@ -55,6 +55,8 @@ spec:
     secondsOfInactivityBeforeIdling: {{ .Values.devEnvironments.secondsOfInactivityBeforeIdling }}
     storage:
       pvcStrategy: per-workspace
+    persistUserHome:
+      enabled: false
   gitServices:
     gitlab:
       - secretName: gitlab-oauth-config
