@@ -10,10 +10,11 @@ spec:
     path: cluster/openshift-pipelines
     repoURL: {{ .Values.gitops.repoURL }}
     targetRevision: {{ .Values.gitops.targetRevision }}
-    helm:
-      valuesObject:
-        subscription:
-          source: {{ include "app-of-apps.operatorSource" . }}
+    # CLG testing alternative catalog for installing Pipelines
+    # helm:
+    #   valuesObject:
+    #     subscription:
+    #       source: {{ include "app-of-apps.operatorSource" . }}
   syncPolicy:
     automated: {}
     retry:
