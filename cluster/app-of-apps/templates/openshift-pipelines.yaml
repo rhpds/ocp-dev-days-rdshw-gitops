@@ -11,7 +11,7 @@ spec:
     repoURL: {{ .Values.gitops.repoURL }}
     targetRevision: {{ .Values.gitops.targetRevision }}
     # CLG testing alternative catalog for installing Pipelines
-    # helm:
+    helm: {}
     #   valuesObject:
     #     subscription:
     #       source: {{ include "app-of-apps.operatorSource" . }}
