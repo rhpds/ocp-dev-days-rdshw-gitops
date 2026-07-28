@@ -18,7 +18,7 @@ spec:
     devWorkspace: {}
     devfileRegistry: {}
     imagePuller:
-      enable: true
+      enable: false
       spec:
         images: "{{ range $i, $entry := .Values.imagePuller.images }}{{ if $i }};{{ end }}{{ $entry.name }}={{ $entry.image }}{{ end }}"
     metrics:
