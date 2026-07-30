@@ -22,20 +22,27 @@ spec:
             - /bin/bash
             - -c
             - |
+              set -euo pipefail
+
+              echo "=== Waiting for cekit-builder ImageStream ==="
               count=0
               limit=60
-              while ! oc get is cekit-builder
-              do
+              while ! oc get is cekit-builder 2>/dev/null; do
                 echo "Waiting for cekit-builder image build to complete"
                 sleep 10
-                count=$(( ${count} + 1 ))
-                if [[ ${count} -eq ${limit} ]]
-                then
+                count=$(( count + 1 ))
+                if [[ ${count} -eq ${limit} ]]; then
                   echo "Failed waiting for image build to complete"
                   exit 1
                 fi
               done
-              cat << EOF | oc create -f -
+
+              echo "=== cekit-builder ImageStream ready ==="
+
+              max_attempts=3
+              for attempt in $(seq 1 ${max_attempts}); do
+                echo "=== Creating PipelineRun (attempt ${attempt}/${max_attempts}) ==="
+                pr_name=$(cat << EOF | oc create -f - -o jsonpath='{.metadata.name}'
               apiVersion: tekton.dev/v1
               kind: PipelineRun
               metadata:
@@ -46,6 +53,41 @@ spec:
                 taskRunTemplate:
                   serviceAccountName: cekit-builder
               EOF
+              )
+                echo "PipelineRun created: ${pr_name}"
+
+                echo "=== Waiting for PipelineRun ${pr_name} to complete ==="
+                poll_count=0
+                poll_limit=180
+                while true; do
+                  status=$(oc get pipelinerun "${pr_name}" -o jsonpath='{.status.conditions[0].status}' 2>/dev/null || echo "Unknown")
+                  reason=$(oc get pipelinerun "${pr_name}" -o jsonpath='{.status.conditions[0].reason}' 2>/dev/null || echo "Pending")
+
+                  if [[ "${status}" == "True" ]]; then
+                    echo "PipelineRun ${pr_name} succeeded"
+                    exit 0
+                  elif [[ "${status}" == "False" ]]; then
+                    echo "PipelineRun ${pr_name} failed (reason: ${reason})"
+                    break
+                  fi
+
+                  poll_count=$(( poll_count + 1 ))
+                  if [[ ${poll_count} -ge ${poll_limit} ]]; then
+                    echo "Timed out waiting for PipelineRun ${pr_name}"
+                    break
+                  fi
+
+                  sleep 20
+                done
+
+                if [[ ${attempt} -lt ${max_attempts} ]]; then
+                  echo "=== Retrying in 30 seconds ==="
+                  sleep 30
+                fi
+              done
+
+              echo "All ${max_attempts} PipelineRun attempts failed"
+              exit 1
           resources:
             requests:
               cpu: 100m
