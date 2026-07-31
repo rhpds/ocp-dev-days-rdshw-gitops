@@ -5,7 +5,7 @@ metadata:
   annotations:
     {{- include "devspaces-operator.argocd-syncwave" . | nindent 4 }}
 spec:
-  ttlSecondsAfterFinished: 300
+  # ttlSecondsAfterFinished: 1200
   backoffLimit: 5
   template:
     spec:

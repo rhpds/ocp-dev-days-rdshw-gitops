@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: pipelines-installplan-approve
 spec:
-  ttlSecondsAfterFinished: 300
+  # ttlSecondsAfterFinished: 1200
   backoffLimit: 5
   template:
     spec:
