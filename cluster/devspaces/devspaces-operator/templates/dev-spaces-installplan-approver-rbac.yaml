@@ -7,7 +7,7 @@ kind: ServiceAccount
 metadata:
   name: dev-spaces-installplan-approver
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    {{- include "devspaces-operator.argocd-syncwave" . | nindent 4 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -15,7 +15,7 @@ kind: Role
 metadata:
   name: dev-spaces-installplan-approver
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    {{- include "devspaces-operator.argocd-syncwave" . | nindent 4 }}
 rules:
   - apiGroups:
       - "operators.coreos.com"
@@ -34,7 +34,7 @@ kind: RoleBinding
 metadata:
   name: dev-spaces-installplan-approver
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    {{- include "devspaces-operator.argocd-syncwave" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: dev-spaces-installplan-approver
