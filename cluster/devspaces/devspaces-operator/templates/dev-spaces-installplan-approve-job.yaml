@@ -24,7 +24,7 @@ spec:
             until [[ ${install_plan} != "" ]]
             do
               oc get installplan
-              install_plan=$(oc get installplan | grep devspacesoperator | grep false | cut -d" " -f1)
+              install_plan=$(oc get installplan | grep -E "devspaces|devworkspace" | grep false | cut -d" " -f1)
               sleep 15
             done
             oc patch installplan ${install_plan} --type merge --patch '{"spec":{"approved":true }}'

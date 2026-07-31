@@ -21,7 +21,7 @@ spec:
               install_plan=""
               until [[ ${install_plan} != "" ]]
               do
-                oc get install_plan
+                oc get installplan
                 install_plan=$(oc get installplan | grep openshift-pipelines-operator | grep false | cut -d" " -f1)
                 sleep 15
               done
