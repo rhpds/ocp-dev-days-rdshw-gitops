@@ -16,15 +16,14 @@ spec:
             - /bin/bash
             - -c
             - |
-              set -euo pipefail
-
               echo "Waiting for Pipelines InstallPlan to exist..."
               
               install_plan=""
               until [[ ${install_plan} != "" ]]
               do
+                oc get install_plan
                 install_plan=$(oc get installplan | grep openshift-pipelines-operator | grep false | cut -d" " -f1)
-                sleep 5
+                sleep 15
               done
               oc patch installplan ${install_plan} --type merge --patch '{"spec":{"approved":true }}'
               echo "Pipelines InstallPlan Approved"
@@ -39,6 +38,4 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
+
