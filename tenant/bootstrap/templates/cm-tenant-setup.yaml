@@ -288,16 +288,16 @@ data:
             - key: cluster_subdomain
               value: "{{ $.Values.cluster.subdomain }}"
 
-        # - name: Unprotect main branch before pushing
-        #   ansible.builtin.uri:
-        #     url: https://{{ "{{" }} gitlab_host {{ "}}" }}/api/v4/projects/{{ "{{" }} tenant_username {{ "}}" }}%2Fparasol-insurance/protected_branches/main
-        #     method: DELETE
-        #     headers:
-        #       PRIVATE-TOKEN: '{{ "{{" }} root_token {{ "}}" }}'
-        #     validate_certs: false
-        #     status_code:
-        #       - 204
-        #       - 404
+        - name: Unprotect main branch before pushing
+          ansible.builtin.uri:
+            url: https://{{ "{{" }} gitlab_host {{ "}}" }}/api/v4/projects/{{ "{{" }} tenant_username {{ "}}" }}%2Fparasol-insurance/protected_branches/main
+            method: DELETE
+            headers:
+              PRIVATE-TOKEN: '{{ "{{" }} root_token {{ "}}" }}'
+            validate_certs: false
+            status_code:
+              - 204
+              - 404
 
         - name: Commit and push catalog-info.yaml
           ansible.builtin.shell: |
