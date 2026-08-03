@@ -1,6 +1,6 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-{{ include "app-of-apps.metadata" (dict "name" .Values.openshiftPipelinesTest.name "namespace" .Values.argocd.namespace "syncWave" "1") }}
+{{ include "app-of-apps.metadata" (dict "name" .Values.openshiftPipelinesTest.name "namespace" .Values.argocd.namespace "syncWave" "-1") }}
 spec:
   destination:
     namespace: {{ .Values.openshiftPipelinesTest.namespace }}
