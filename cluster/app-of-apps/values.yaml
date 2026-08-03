@@ -47,7 +47,7 @@ externalSecrets:
   name: external-secrets
   namespace: external-secrets
 
-openshiftPipelinesTest:
+openshiftPipelines:
   name: openshift-pipelines
   namespace: openshift-pipelines
 
