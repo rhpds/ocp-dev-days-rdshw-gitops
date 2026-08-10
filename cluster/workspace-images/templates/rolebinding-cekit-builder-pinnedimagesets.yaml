@@ -1,16 +1,16 @@
-kind: RoleBinding
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cekit-builder-podman
+  name: cekit-builder-pinned-image-sets
   labels:
     {{- include "workspace-images.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 subjects:
-  - kind: ServiceAccount
-    name: cekit-builder
-    namespace: {{ $.Values.namespace }}
+- kind: ServiceAccount
+  name: cekit-builder
+  namespace: {{ .Values.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: cekit-builder-podman
+  kind: ClusterRole
+  name: pinned-image-sets

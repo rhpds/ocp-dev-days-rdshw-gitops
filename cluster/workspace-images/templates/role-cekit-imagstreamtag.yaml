@@ -1,25 +1,24 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cekit-builder-podman
+  name: cekit-builder-ist
   labels:
     {{- include "workspace-images.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 rules:
   - verbs:
-      - use
+      - get
+      - watch
     apiGroups:
-      - security.openshift.io
+      - image.openshift.io
     resources:
-      - securitycontextconstraints
-    resourceNames:
-      - cekit-podman-builder
+      - imagestreamtags
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cekit-builder-podman
+  name: cekit-builder-ist
   labels:
     {{- include "workspace-images.labels" . | nindent 4 }}
   annotations:
@@ -27,8 +26,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: cekit-builder
-    namespace: {{ $.Values.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: cekit-builder-podman
+  name: cekit-builder-ist
