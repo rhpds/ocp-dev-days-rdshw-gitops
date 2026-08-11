@@ -45,7 +45,7 @@ spec:
       restartPolicy: OnFailure
       serviceAccountName: cekit-builder
       containers:
-        - name: create-pipeline-run
+        - name: build-cekit-builder-image
           image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
           command:
             - /bin/bash
