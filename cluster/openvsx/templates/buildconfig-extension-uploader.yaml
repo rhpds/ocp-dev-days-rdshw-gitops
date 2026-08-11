@@ -30,7 +30,7 @@ metadata:
   labels:
     {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
@@ -39,7 +39,7 @@ metadata:
   labels:
     {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
 rules:
 - apiGroups:
     - build.openshift.io
@@ -89,7 +89,7 @@ metadata:
   labels:
     {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
 subjects:
   - kind: ServiceAccount
     name: openvsx-builder
@@ -105,7 +105,7 @@ metadata:
   labels:
     {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "0"
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
