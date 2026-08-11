@@ -56,13 +56,13 @@ spec:
               while ! oc get is cekit-builder
               do
                 echo "Waiting for cekit-builder image build to complete"
-                oc start-build cekit-builder -w -F  
+                oc start-build cekit-builder -w -F
                 count=$(( ${count} + 1 ))
                 if [[ ${count} -eq ${limit} ]]
                 then
                   echo "Failed to build image"
                   exit 1
-                fi              
+                fi
               done
           resources:
             requests:

@@ -38,7 +38,7 @@ spec:
           - ALL
       readOnlyRootFilesystem: false
       allowPrivilegeEscalation: true
-  steps:      
+  steps:
   - name: clone
     computeResources: {}
     image: {{ .Values.registry.hostname }}/{{ .Values.registry.namespace }}/{{ .Values.registry.builderImage }}:{{ .Values.registry.builderTag }}
