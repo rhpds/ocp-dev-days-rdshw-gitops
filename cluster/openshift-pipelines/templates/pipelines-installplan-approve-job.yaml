@@ -2,6 +2,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: pipelines-installplan-approve
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   # ttlSecondsAfterFinished: 1200
   backoffLimit: 5
