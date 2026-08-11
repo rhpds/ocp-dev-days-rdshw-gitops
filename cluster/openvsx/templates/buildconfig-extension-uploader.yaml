@@ -28,7 +28,7 @@ kind: ServiceAccount
 metadata:
   name: openvsx-builder
   labels:
-    {{- include "workspace-images.labels" . | nindent 4 }}
+    {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 ---
@@ -37,7 +37,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: openvsx-builder
   labels:
-    {{- include "workspace-images.labels" . | nindent 4 }}
+    {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 rules:
@@ -87,7 +87,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: openvsx-builder
   labels:
-    {{- include "workspace-images.labels" . | nindent 4 }}
+    {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 subjects:
@@ -103,7 +103,7 @@ kind: Job
 metadata:
   name: openvsx-uploader-build
   labels:
-    {{- include "workspace-images.labels" . | nindent 4 }}
+    {{- include "openvsx.labels" . | nindent 4 }}
   annotations:
     argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/hook: PostSync
