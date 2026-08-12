@@ -16,7 +16,8 @@ data:
     {
       "$schema": "https://app.kilo.ai/config.json",
       "permission": {
-        "bash": "allow"
+        "bash": "allow",
+        "edit": "allow"
       },
       "enabled_providers": [
         "lite-maas"
@@ -63,5 +64,8 @@ data:
           "options": {},
           "permission": {}
         }
-      }
+      },
+      "auto_collapse_reasoning": false,
+      "terminal_command_display": "expanded",
+      "code_edit_display": "expanded"
     }
