@@ -42,6 +42,13 @@ vault:
       userPassword: ""
     rhdh:
       argocdPassword: ""
+    # S4 in-cluster S3 credentials for Quay (AWS only — no ODF/OBC available)
+    # Written by Ansible (ocp4_workload_dev_days_rdshw_cluster_bootstrap) after S4 health check
+    # Vault path: kv/secrets/s4 → {access_key, secret_key, quay_hostname}
+    s4:
+      accessKey: ""
+      secretKey: ""
+      quayHostname: ""
 
 externalSecrets:
   name: external-secrets
