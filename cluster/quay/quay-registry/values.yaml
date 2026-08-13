@@ -8,6 +8,14 @@ quay:
   adminUser: quayadmin
   adminUserPassword: 
   userInitialize: true
+  # S4 in-cluster S3 config (required on AWS — no OBC/ODF operator available)
+  s4:
+    enabled: true
+    namespace: s4
+    bucketName: quay-registry
+    accessKey: s4admin
+    secretKey: ""
+    host: ""
   component:
     postgres:
       managed: true
@@ -24,7 +32,8 @@ quay:
             cpu: 125m
             memory: 1Gi
     objectstorage:
-      managed: true
+      # managed: false — OBC not available on AWS; S3 config provided via config-bundle
+      managed: false
     redis:
       managed: true
     tls:
