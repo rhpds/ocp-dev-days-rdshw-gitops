@@ -47,7 +47,7 @@ spec:
                   - name: VALIDATION_PROVIDER
                     value: vllm
                   - name: VALIDATION_MODEL_NAME
-                    value: qwen3-235b
+                    value: claude-opus-4-6
                 envFrom:
                   - secretRef:
                       name: llama-stack-secrets

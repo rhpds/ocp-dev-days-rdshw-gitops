@@ -3,7 +3,7 @@ fullnameOverride: ""
 
 namespace: ""
 
-aiAssistantModel: qwen3-235b
+aiAssistantModel: claude-opus-4-6
 
 devEnvironments:
   startTimeoutSeconds: 300
