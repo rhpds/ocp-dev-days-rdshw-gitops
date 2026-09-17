@@ -29,6 +29,8 @@ spec:
   ols:
     logLevel: INFO
     maxIterations: 50
+    toolsApprovalConfig:
+      approvalType: never
     defaultModel: {{ .Values.llm.model }}
     defaultProvider: {{ .Values.llm.provider }}
     conversationCache:
