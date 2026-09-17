@@ -19,6 +19,12 @@ spec:
       namespace: {{ .Values.tenant.username }}-parasol-payments
       jsonPointers:
         - /spec/template/spec/containers/0/image
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+      name: backend-network-policy
+      namespace: {{ .Values.tenant.username }}-parasol-web
+      jsonPointers:
+        - /spec
   source:
     path: tenant/parasol-troubleshooting
     repoURL: {{ .Values.gitops.repoURL }}
