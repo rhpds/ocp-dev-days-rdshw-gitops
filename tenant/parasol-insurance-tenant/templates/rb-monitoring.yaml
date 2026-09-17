@@ -43,4 +43,18 @@ subjects:
   - apiGroup: rbac.authorization.k8s.io
     kind: User
     name: {{ $username }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $prefix }}-perses-edit
+  namespace: {{ $prefix }}-{{ $ns }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: perses-cr
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: {{ $username }}
 {{- end }}
