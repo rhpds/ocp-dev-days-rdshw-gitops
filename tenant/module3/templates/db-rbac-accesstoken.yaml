@@ -12,7 +12,7 @@ rules:
   - apiGroups: ["skupper.io"]
     resources: ["accesstokens"]
     resourceNames: ["token-{{ .Values.tenant.openshiftUser }}"]
-    verbs: ["get", "list", "watch", "delete"]
+    verbs: ["get", "list", "watch", "update", "patch", "delete"]
   - apiGroups: [""]
     resources: ["secrets"]
     resourceNames: ["token-{{ .Values.tenant.openshiftUser }}"]
