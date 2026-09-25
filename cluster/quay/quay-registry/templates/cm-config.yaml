@@ -36,7 +36,7 @@ data:
           until: r_quayapi.status == 200 or r_quayapi.status == 403
           retries: 120
           delay: 10
-        - name: Create QuayAdmin user
+        - name: Check if admin user already exists
           ansible.builtin.uri:
             url: '{{ "{{" }} r_quay_registry.resources[0].status.registryEndpoint {{ "}}" }}/api/v1/user/initialize'
             method: POST
@@ -47,8 +47,27 @@ data:
               access_token: "true"
             body_format: json
             validate_certs: false
-            status_code: 200
+            status_code:
+              - 200
+              - 400
           register: r_quayadmin
+        - name: Get existing admin token if user already exists
+          when: r_quayadmin.status == 400
+          block:
+            - name: Login to get token
+              ansible.builtin.uri:
+                url: '{{ "{{" }} r_quay_registry.resources[0].status.registryEndpoint {{ "}}" }}/api/v1/signin'
+                method: POST
+                body:
+                  username: "{{ .Values.quay.adminUser }}"
+                  password: "{{ .Values.quay.adminUserPassword }}"
+                body_format: json
+                validate_certs: false
+                status_code: 200
+              register: r_quayadmin_login
+            - name: Set admin token from login
+              ansible.builtin.set_fact:
+                r_quayadmin: "{{ "{{" }} {'json': {'access_token': r_quayadmin_login.cookies.session}} {{ "}}" }}"
         - name: Create quay admin token secret
           kubernetes.core.k8s:
             state: present
