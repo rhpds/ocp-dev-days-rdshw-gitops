@@ -124,7 +124,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: rollout
-          image: registry.redhat.io/openshift4/ose-cli-rhel9:v4.15.0
+          image: registry.redhat.io/openshift4/ose-cli:v4.15.0
           command:
             - /bin/bash
             - -c
