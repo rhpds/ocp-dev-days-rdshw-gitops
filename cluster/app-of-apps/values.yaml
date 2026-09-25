@@ -107,3 +107,7 @@ openshiftLightspeed:
 developerHub:
   name: developer-hub
   namespace: rhdh
+
+module3:
+  enabled: true
+  name: app-of-apps-m3
