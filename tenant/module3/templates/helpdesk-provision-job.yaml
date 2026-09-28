@@ -97,7 +97,7 @@ data:
             body:
               aUsername: "{{ "{{" }} username {{ "}}" }}"
               aFullname: "{{ "{{" }} username {{ "}}" }}"
-              aEmail: "{{ "{{" }} username {{ "}}" }}@globex.com"
+              aEmail: "{{ "{{" }} username {{ "}}" }}@parasol.com"
               aPass: "{{ "{{" }} user_pass {{ "}}" }}"
               aPassConfirm: "{{ "{{" }} user_pass {{ "}}" }}"
               aRole: "{{ "{{" }} role_id {{ "}}" }}"
