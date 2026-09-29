@@ -73,6 +73,9 @@
     },
     {
       "id": "ms-python.debugpy"
+    },
+    {
+      "id": "redhat.vscode-kaoto"
     }
   ]
 }
