@@ -1,0 +1,27 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dls-mta-config
+  namespace: {{ include "devspaces-instance.namespace" . }}
+  annotations:
+    controller.devfile.io/mount-as: subpath
+    controller.devfile.io/mount-path: /globalconfig
+    {{- include "devspaces-instance.argocd-syncwave" . | nindent 4 }}
+  labels:
+    app.kubernetes.io/part-of: che.eclipse.org
+    app.kubernetes.io/component: workspaces-config
+data:
+  provider-settings.yaml: |
+    ---
+    environment:
+      ALWAYS_APPLIED_KEY: "envvar to be set regardless of which model is active"
+    models:
+      OpenShift: &active
+        environment:
+          OPENAI_API_KEY: "_LLM_API_KEY_"
+        provider: ChatOpenAI
+        args:
+          model: "{{ .Values.aiAssistantModel }}"
+          configuration:
+            baseURL: "_LLM_BASE_URL_"
+    active: *active
