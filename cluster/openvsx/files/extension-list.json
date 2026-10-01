@@ -76,6 +76,24 @@
     },
     {
       "id": "redhat.vscode-kaoto"
+    },
+    {
+      "id": "redhat.mta-vscode-extension"
+    },
+    {
+      "id": "redhat.mta-core"
+    },
+    {
+      "id": "redhat.mta-java"
+    },
+    {
+      "id": "redhat.mta-csharp"
+    },
+    {
+      "id": "redhat.mta-go"
+    },
+    {
+      "id": "redhat.mta-javascript"
     }
   ]
 }

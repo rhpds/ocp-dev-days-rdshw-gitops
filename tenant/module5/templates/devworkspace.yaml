@@ -55,6 +55,8 @@ spec:
             - name: CLUSTER_CONSOLE_URL
               value: https://console-openshift-console.{{ .Values.cluster.appsDomain }}/topology/ns/{{ include "module5.namespace" . }}?view=graph
             {{- end }}
+            - name: VSCODE_TRUSTED_EXTENSIONS
+              value: "redhat.mta-vscode-extension,redhat.mta-core,redhat.mta-java,redhat.mta-csharp,redhat.mta-go,redhat.mta-javascript"
             - name: HOST_USERS
               value: 'false'
             - name: OCP_USER
