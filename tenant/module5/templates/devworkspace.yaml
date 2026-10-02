@@ -12,7 +12,8 @@ spec:
     - name: ide
       uri: http://devspaces-dashboard.{{ .Values.devspaces.namespace }}.svc.cluster.local:8080/dashboard/api/editors/devfile?che-editor=che-incubator/che-code/latest
   routingClass: che
-  started: true
+  # Stay stopped until the student starts it from the Dev Spaces dashboard
+  started: false
   template:
     attributes:
       controller.devfile.io/devworkspace-config:

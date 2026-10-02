@@ -13,6 +13,12 @@ spec:
   destination:
     namespace: {{ .Values.argocd.namespace }}
     server: https://kubernetes.default.svc
+  ignoreDifferences:
+    # Workspace is created stopped; students start it from the dashboard and Argo should not stop it again
+    - group: workspace.devfile.io
+      kind: DevWorkspace
+      jsonPointers:
+        - /spec/started
   project: default
   source:
     path: tenant/module5
@@ -40,3 +46,4 @@ spec:
       limit: 30
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
