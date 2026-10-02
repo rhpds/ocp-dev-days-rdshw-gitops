@@ -78,7 +78,7 @@
       "id": "redhat.vscode-kaoto"
     },
     {
-      "id": "redhat.mta-vscode-extension"
+      "id": "vscode.git"
     },
     {
       "id": "redhat.mta-core"
@@ -94,6 +94,9 @@
     },
     {
       "id": "redhat.mta-javascript"
+    },
+    {
+      "id": "redhat.mta-vscode-extension"
     }
   ]
 }
