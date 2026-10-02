@@ -25,6 +25,7 @@ data:
       "java.server.launchMode": "Standard",
       "java.import.maven.enabled": true,
       "java.import.maven.autoDetect": true,
+      "redhat.telemetry.enabled": true,
       "workbench.colorTheme": "Default Light Modern"
     }
   extensions.json: |
