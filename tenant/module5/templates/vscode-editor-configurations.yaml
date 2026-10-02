@@ -12,7 +12,7 @@ metadata:
 data:
   settings.json: |
     {
-      "security.workspace.trust.enabled": true,
+      "security.workspace.trust.enabled": false,
       "security.workspace.trust.extensions": "trusted",
       "security.workspace.trust.trustedExtensions": [
         "redhat.mta-vscode-extension",
@@ -24,7 +24,8 @@ data:
       ],
       "java.server.launchMode": "Standard",
       "java.import.maven.enabled": true,
-      "java.import.maven.autoDetect": true
+      "java.import.maven.autoDetect": true,
+      "workbench.colorTheme": "Default Light Modern"
     }
   extensions.json: |
     {
