@@ -62,8 +62,6 @@ spec:
               value: 'false'
             - name: OCP_USER
               value: {{ .Values.tenant.username | quote }}
-            - name: OCP_PASSWORD
-              value: {{ .Values.tenant.password | quote }}
           image: {{ .Values.devworkspace.image }}
           memoryLimit: {{ .Values.devworkspace.memoryLimit }}
           sourceMapping: /projects
