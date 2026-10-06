@@ -5,6 +5,13 @@ Tenant Dev Spaces namespace — same convention as Module 3 / CheCluster.
 {{ .Values.tenant.username }}-devspaces
 {{- end }}
 
+{{/*
+Tenant MTA lab project — OpenShift namespace for analysis / deployment (e.g. user1-ai-mta).
+*/}}
+{{- define "module5.mtaNamespace" -}}
+{{ .Values.tenant.username }}-ai-mta
+{{- end }}
+
 {{- define "module5.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
