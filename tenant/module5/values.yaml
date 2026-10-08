@@ -1,7 +1,7 @@
 tenant:
   username: ""
   openshiftUser: ""
-  # OCP login password is loaded from Vault (secrets/common/password) via workspace-credentials
+  password: ""
 
 gitlab:
   host: ""
