@@ -54,21 +54,23 @@ The tenant parasol-insurance chart (`tenant/parasol-insurance-tenant/`) creates:
 
 ```
 Shared (visible to all users):
-  System: parasol-insurance
-  API: parasol-insurance-api
   Resources: kafka-cluster, llm-inference-server
   Templates: Parasol Insurance Development Environment
   Groups: users, admins
   Users: (synced from Keycloak)
 
 Per-user (visible only to owner via RBAC):
+  System: parasol-insurance-<username>
+  API: parasol-insurance-api-<username>
   Component: parasol-insurance-<username>
     - From catalog-info.yaml in user's parasol-insurance GitLab repo
+    - Component and API reference the user's System
     - Annotations link to user's ArgoCD apps, K8s namespaces, pipelines
 
 Per-dev-environment (visible only to owner via RBAC):
   Component: parasol-insurance-dev-<username>
     - From catalog-info.yaml in the gitops repo created by the software template
+    - References the user's System
 ```
 
 ### RBAC Model
@@ -82,8 +84,8 @@ Per-dev-environment (visible only to owner via RBAC):
 
 The `developer` role has **conditional read policies**:
 
-- **Components**: users can only see entities they own (`IS_ENTITY_OWNER`)
-- **Shared types** (System, API, Template, Group, User, Location, Domain, Resource): visible to all
+- **Components, Systems, APIs**: users can only see entities they own (`IS_ENTITY_OWNER`)
+- **Shared types** (Template, Group, User, Location, Domain, Resource): visible to all
 - **Update/Delete**: only on owned entities
 
 ### Kubernetes Resource Labeling

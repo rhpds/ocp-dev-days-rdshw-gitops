@@ -60,8 +60,7 @@ data:
           resourceType: catalog-entity
           params:
             kinds:
-              - system
-              - api
+              # Per-user Systems and APIs are readable through IS_ENTITY_OWNER above.
               - template
               - group
               - user
