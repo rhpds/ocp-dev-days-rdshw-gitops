@@ -5,8 +5,5 @@ metadata:
   annotations:
     {{- include "module5.namespace-syncwave" . | nindent 4 }}
     argocd.argoproj.io/sync-options: Delete=false
-    che.eclipse.org/username: {{ .Values.tenant.username | quote }}
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
-    app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: workspaces-namespace
