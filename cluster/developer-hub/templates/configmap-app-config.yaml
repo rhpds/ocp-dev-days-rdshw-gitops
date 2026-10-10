@@ -16,8 +16,8 @@ data:
       prompts:
         - title: Introduce Parasol Insurance Application
           message: |
-            Introduce me about the parasol-insurance-api API, its components registered (including API) in the
-            Red Hat Developer Hub catalog. Complete the introduction writing a sample snippet of Java code to access it.
+            Introduce me to the Parasol Insurance API registered in my Red Hat Developer Hub catalog, its related
+            components, and a sample Java snippet to access it.
 
         - title: Using Lightspeed and MCP
           message: |
