@@ -29,6 +29,25 @@ These values are an inventory, **not** an approved security baseline. The
 pipeline's SonarQube task is a code-quality check; its success alone does not
 establish the expected Trusted Profile Analyzer (TPA) findings.
 
+## Live lab check (2026-10-10)
+
+In the fresh `user1` and `user2` tenants, the `parasol-insurance-push` and
+tag-promote PipelineRuns succeeded, and the application deployments were
+Ready. The built image digests were:
+
+| Tenant | Built image digest |
+| --- | --- |
+| `user1` | `sha256:50aa103535faae526cf765b196c89cf91747d74c45dffb1f66bd4af23602531e` |
+| `user2` | `sha256:6574bd81fb11599ef9a828e8c73c6f51bbc52996f08a1d85913ece6f771aa326` |
+
+A Sonar task also succeeded. These results verify the build and deployment
+path in this lab; they do not verify vulnerability findings. Inspection found
+no TPA service, route, or configuration in the lab, and the current showroom
+repository has no Module 2 page to compare with a report. Before closing
+issue #51, identify where the workshop's TPA report is generated and accessed,
+then capture a report for these exact image digests and check the participant
+instructions and screenshots against its findings.
+
 ## Baseline refresh
 
 Run this before each workshop release and after a material upstream image or
