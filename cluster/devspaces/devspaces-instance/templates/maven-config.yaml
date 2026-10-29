@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maven-settings-xml
+  namespace: {{ include "devspaces-instance.namespace" . }}
+  labels:
+    app.kubernetes.io/part-of: che.eclipse.org
+    app.kubernetes.io/component: workspaces-config
+  annotations:
+    controller.devfile.io/mount-as: subpath
+    controller.devfile.io/mount-path: /usr/local/maven/conf
+data:
+  settings.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+      <mirrors>
+        <mirror>
+          <id>pulp-maven-central</id>
+          <name>Local Maven Central mirror </name>
+          <url>http://pulp-content-svc.pulp.svc.cluster.local:24816/pulp/content/maven-central/</url>
+          <mirrorOf>central</mirrorOf>
+        </mirror>
+      </mirrors>
+      <profiles>
+        <profile>
+          <id>pulp-maven-central</id>
+          <repositories>
+            <repository>
+              <id>pulp-maven-central</id>
+              <name>pulp-maven-central</name>
+              <url>http://pulp-content-svc.pulp.svc.cluster.local:24816/pulp/content/maven-central/</url>
+            </repository>
+          </repositories>
+        </profile>
+      </profiles>
+      <activeProfiles>
+        <activeProfile>pulp-maven-central</activeProfile>
+      </activeProfiles>
+    </settings>

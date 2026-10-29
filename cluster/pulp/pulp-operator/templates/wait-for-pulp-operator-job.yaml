@@ -1,0 +1,95 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pulp-wait-for-operator
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pulp-wait-for-operator
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+rules:
+  - apiGroups:
+      - "operators.coreos.com"
+    resources:
+      - clusterserviceversions
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pulp-wait-for-operator
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pulp-wait-for-operator
+subjects:
+  - kind: ServiceAccount
+    name: pulp-wait-for-operator
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pulp-wait-for-operator
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: pulp-wait-for-operator
+      containers:
+        - name: wait
+          image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              NS="{{ .Release.Namespace }}"
+
+              echo "Waiting for Pulp CSV to succeed in ${NS}..."
+              until CSV=$(oc get csv -n ${NS} --no-headers -o custom-columns=":metadata.name" 2>/dev/null | grep pulp-operator | head -1) && \
+                    [ -n "${CSV}" ] && \
+                    [ "$(oc get csv ${CSV} -n ${NS} -o jsonpath='{.status.phase}' 2>/dev/null)" = "Succeeded" ]; do
+                echo "  ...CSV not ready yet"
+                sleep 10
+              done
+              echo "CSV ${CSV} succeeded."
+
+              until [[ $(oc get deployment pulp-operator-controller-manager -n pulp -o jsonpath='{.status.readyReplicas}') -eq 1 ]]
+              do
+                echo "Waiting for pulp-operator-operator deployment..."
+                sleep 5
+              done
+              echo "Operator is ready."

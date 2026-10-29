@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pulp-init-maven-cache
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pulp-init-maven-cache
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pulp-init-maven-cache
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pulp-init-maven-cache
+subjects:
+  - kind: ServiceAccount
+    name: pulp-init-maven-cache
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pulp-init-maven-cache
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: pulp-init-maven-cache
+      containers:
+      - name: patch
+        image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+        command:
+          - /bin/bash
+          - -c
+          - |
+            until [[ $(oc get deployment pulp-api -n {{ .Release.Namespace }} -o jsonpath='{.status.readyReplicas}') -eq 1 ]]
+            do
+              echo "Waiting for pulp-operator-operator deployment..."
+              sleep 5
+            done
+            echo "Pulp API is ready."
+            mkdir -p /tmp/home
+            export HOME=/tmp/home
+            python3 -m venv ${HOME}/.venv
+            . ${HOME}/.venv/bin/activate
+            pip install pulp-cli
+            pip install pulp-cli-maven
+
+            mkdir -p ${HOME}/.config/pulp
+            cat << EOF > ${HOME}/.config/pulp/cli.toml
+            [cli]
+            base_url = "http://pulp-api-svc.{{ .Release.Namespace }}.svc.cluster.local:24817"
+            api_root = "/pulp/"
+            domain = "default"
+            headers = []
+            verify_ssl = false
+            format = "json"
+            dry_run = false
+            timeout = 0
+            verbose = 1
+            EOF
+
+            pulp --username admin --password $(oc get secret pulp-admin-password -n {{ .Release.Namespace }} -o jsonpath="{.data.password}" | base64 --decode) maven remote create --name maven-central --url https://repo1.maven.org/maven2/
+            pulp --username admin --password $(oc get secret pulp-admin-password -n {{ .Release.Namespace }} -o jsonpath="{.data.password}" | base64 --decode) maven repository create --name maven-central --remote maven-central
+            pulp --username admin --password $(oc get secret pulp-admin-password -n {{ .Release.Namespace }} -o jsonpath="{.data.password}" | base64 --decode) maven distribution create --name maven-central --remote maven-central --repository maven-central --base-path maven-central
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+

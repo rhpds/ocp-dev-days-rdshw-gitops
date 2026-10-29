@@ -142,3 +142,7 @@ policyController:
 module3:
   enabled: true
   name: app-of-apps-m3
+
+pulp:
+  name: pulp
+  namespace: pulp

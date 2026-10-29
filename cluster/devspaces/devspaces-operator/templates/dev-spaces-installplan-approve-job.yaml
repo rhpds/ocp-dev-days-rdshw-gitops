@@ -25,7 +25,10 @@ spec:
             do
               oc get installplan
               install_plan=$(oc get installplan | grep -E "devspaces|devworkspace" | grep false | cut -d" " -f1)
-              sleep 15
+              if [[ ${install_plan} == "" ]]
+              then
+                sleep 15
+              fi
             done
             oc patch installplan ${install_plan} --type merge --patch '{"spec":{"approved":true }}'
             echo "Dev Spaces InstallPlan Approved"
