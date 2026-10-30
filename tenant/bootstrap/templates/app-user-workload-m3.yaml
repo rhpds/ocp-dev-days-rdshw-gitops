@@ -15,6 +15,11 @@ spec:
     namespace: {{ .Values.argocd.namespace }}
     server: https://kubernetes.default.svc
   ignoreDifferences:
+    # Let students and Dev Spaces control workspace start, stop, and idling
+    - group: workspace.devfile.io
+      kind: DevWorkspace
+      jsonPointers:
+        - /spec/started
     # Build job scales Camel deployments to 0 after creating images, students scale them back up and Argo should not revert
     - group: apps
       kind: Deployment
