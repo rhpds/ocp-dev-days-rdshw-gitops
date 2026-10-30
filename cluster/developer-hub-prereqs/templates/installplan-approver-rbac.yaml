@@ -1,0 +1,41 @@
+{{- if eq .Values.operator.installPlanApproval "Manual" }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rhdh-installplan-approver
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rhdh-installplan-approver
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+rules:
+  - apiGroups: ["operators.coreos.com"]
+    resources: ["subscriptions"]
+    resourceNames: ["rhdh"]
+    verbs: ["get"]
+  - apiGroups: ["operators.coreos.com"]
+    resources: ["installplans"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rhdh-installplan-approver
+  namespace: {{ .Values.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+subjects:
+  - kind: ServiceAccount
+    name: rhdh-installplan-approver
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: rhdh-installplan-approver
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
