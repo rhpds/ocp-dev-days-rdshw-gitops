@@ -1,0 +1,61 @@
+{{- if eq .Values.operator.installPlanApproval "Manual" }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rhdh-installplan-approve
+  namespace: {{ .Values.namespace }}
+  annotations:
+    # Run alongside the Subscription so pending approval cannot block this Job.
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  # Retain the completed Job so later syncs do not approve operator upgrades.
+  backoffLimit: 5
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: rhdh-installplan-approver
+      containers:
+        - name: patch
+          image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+          env:
+            - name: OPERATOR_NAMESPACE
+              value: {{ .Values.namespace | quote }}
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              echo "Waiting for the initial Developer Hub InstallPlan..."
+              while true; do
+                installed_csv=$(oc get subscription rhdh -n "$OPERATOR_NAMESPACE" --ignore-not-found -o jsonpath='{.status.installedCSV}')
+                if [[ -n "$installed_csv" ]]; then
+                  echo "Developer Hub is already installed ($installed_csv); leaving upgrades for manual approval."
+                  exit 0
+                fi
+
+                install_plan=$(oc get subscription rhdh -n "$OPERATOR_NAMESPACE" --ignore-not-found -o jsonpath='{.status.installPlanRef.name}')
+                if [[ -n "$install_plan" ]]; then
+                  approved=$(oc get installplan "$install_plan" -n "$OPERATOR_NAMESPACE" -o jsonpath='{.spec.approved}')
+                  if [[ "$approved" == "true" ]]; then
+                    echo "Developer Hub InstallPlan is already approved."
+                    exit 0
+                  fi
+                  oc patch installplan "$install_plan" -n "$OPERATOR_NAMESPACE" --type merge --patch '{"spec":{"approved":true}}'
+                  echo "Initial Developer Hub InstallPlan approved."
+                  exit 0
+                fi
+                sleep 15
+              done
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+{{- end }}
