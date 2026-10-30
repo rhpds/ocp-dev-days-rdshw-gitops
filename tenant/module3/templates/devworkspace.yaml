@@ -10,8 +10,9 @@ spec:
     - name: ide
       uri: http://devspaces-dashboard.{{ .Values.devspaces.namespace }}.svc.cluster.local:8080/dashboard/api/editors/devfile?che-editor=che-incubator/che-code/latest
   routingClass: che
-  # Stay stopped until the student starts it from the Dev Spaces dashboard
-  started: false
+  # Start once so Rocket.Chat provisioning can discover the workspace Service.
+  # The parent Application ignores later changes so Dev Spaces can idle it.
+  started: true
   template:
     attributes:
       controller.devfile.io/devworkspace-config:
