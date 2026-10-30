@@ -71,11 +71,23 @@ The tenant bootstrap chart (`tenant/bootstrap/`) runs a Job that:
 
 | Chart | Path | Description |
 |-------|------|-------------|
-| Bootstrap | `tenant/bootstrap/` | User provisioning job, child app creation |
+| Bootstrap | `tenant/bootstrap/` | User provisioning job, shared Dev Spaces namespace/RBAC, child app creation |
 | Parasol Insurance | `tenant/parasol-insurance-tenant/` | Base app: build/dev/prod namespaces, pipelines, ArgoCD apps |
 | Parasol Insurance Secured | `tenant/parasol-insurance-secured-tenant/` | Secured app: build/preprod/prod namespaces, secured pipelines, ArgoCD apps |
 | Module 3 Workload | `tenant/module3/` | Per-tenant Kafka, Camel, DevWorkspace, DB, messaging |
 | Module 5 Workload | `tenant/module5/` | Per-tenant MTA migration namespace and DevWorkspace |
+
+Bootstrap owns `<username>-devspaces` and its `<username>-edit` RoleBinding
+whenever module 3 or module 5 is enabled. They sync at wave `-1`, before the
+module Applications at wave `3`. The module charts depend on bootstrap for
+these shared prerequisites and never declare them themselves. Dev Spaces
+namespace auto-provisioning remains enabled; the workshop pre-creates the
+namespace to provision workspaces before user login. Module 5 still owns its
+separate `<username>-ai-mta` namespace and RoleBinding.
+
+Existing tenants require a staged ownership transfer before upgrading.
+Do not disable both modules as an ownership-migration shortcut: removing a
+namespace from desired state can prune it even when it has `Delete=false`.
 
 ## Secured Software Supply Chain
 
