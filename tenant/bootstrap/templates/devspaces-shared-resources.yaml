@@ -1,0 +1,28 @@
+{{- if or .Values.module3.enabled .Values.module5.enabled }}
+# Shared prerequisites have one owner even when both workspace modules are enabled.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.tenant.username }}-devspaces
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: Delete=false
+  labels:
+    argocd.argoproj.io/managed-by: {{ .Values.argocd.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.tenant.username }}-edit
+  namespace: {{ .Values.tenant.username }}-devspaces
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: {{ .Values.tenant.username }}
+{{- end }}
