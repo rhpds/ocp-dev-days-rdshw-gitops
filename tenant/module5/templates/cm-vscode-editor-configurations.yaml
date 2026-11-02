@@ -1,0 +1,36 @@
+{{/*
+Disable che-code extension auto-update for Module 5 and pin the MTA/Java
+stack to the same versions mirrored in cluster/openvsx/files/extension-list.json.
+che-code reads this ConfigMap (app.kubernetes.io/part-of: che.eclipse.org)
+into Machine settings on workspace start.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vscode-editor-configurations
+  namespace: {{ include "module5.namespace" . }}
+  annotations:
+    {{- include "module5.workspace-syncwave" . | nindent 4 }}
+  labels:
+    app.kubernetes.io/part-of: che.eclipse.org
+    helm.sh/chart: {{ include "module5.chart" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  settings.json: |
+    {
+      "extensions.autoUpdate": false,
+      "extensions.autoCheckUpdates": false,
+      "extensions.allowed": {
+        "*": true,
+        "redhat.mta-vscode-extension": ["8.3.1"],
+        "redhat.mta-core": ["8.3.1"],
+        "redhat.mta-java": ["8.3.1"],
+        "redhat.mta-csharp": ["8.3.1"],
+        "redhat.mta-go": ["8.3.1"],
+        "redhat.mta-javascript": ["8.3.1"],
+        "redhat.java": ["1.56.0"],
+        "vscjava.vscode-java-debug": ["0.58.2"],
+        "vscjava.vscode-java-test": ["0.43.1"],
+        "vscjava.vscode-maven": ["0.44.0"]
+      }
+    }
