@@ -129,9 +129,54 @@ function getCompatibleRelease() {
   echo "${ext_compat}"
 }
 
+# Return the pinned version for ext_id from EXTENSION_FILE, or empty if unpinned.
+function getPinnedVersion() {
+  local ext_id=${1}
+  jq -r --arg id "${ext_id}" '
+    .extensions[]
+    | select(.id == $id and has("version"))
+    | .version
+  ' "${EXTENSION_FILE}" | head -n1
+}
+
+# Resolve a release JSON object for ext_id. Uses ext_version when set; otherwise
+# the newest vscode-compatible stable release from public Open VSX.
+function resolveExtensionRelease() {
+  local ext_id=${1}
+  local ext_version=${2:-}
+  local ext_data
+  local count
+
+  if [[ -n ${ext_version} ]]
+  then
+    echo "Resolving ${ext_id}@${ext_version} (pinned)" >&2
+    ext_data=$(curl -sL -X GET "https://open-vsx.org/api/v2/-/query?extensionId=${ext_id}&targetPlatform=${ARCH}&extensionVersion=${ext_version}&offset=0" -H 'accept: application/json')
+    count=$(echo "${ext_data}" | jq -r '.totalSize // 0')
+    if [[ ${count} -eq 0 ]]
+    then
+      ext_data=$(curl -sL -X GET "https://open-vsx.org/api/v2/-/query?extensionId=${ext_id}&targetPlatform=universal&extensionVersion=${ext_version}&offset=0" -H 'accept: application/json')
+      count=$(echo "${ext_data}" | jq -r '.totalSize // 0')
+      if [[ ${count} -eq 0 ]]
+      then
+        echo "ERROR: Extension ${ext_id}@${ext_version} not found" >&2
+        echo "not-found"
+        return 1
+      fi
+    fi
+    echo "${ext_data}" | jq -c ".extensions[0]"
+    return 0
+  fi
+
+  echo "Resolving ${ext_id} (latest compatible)" >&2
+  getCompatibleRelease ${ext_id}
+}
+
 function fetchDependencies() {
   local ext_release="${1}"
   local index=0
+  local pinned_version
+  local dep_release
+  local dep_url
 
   num_deps=$(echo "${ext_release}" | jq '.dependencies | length')
   while [[ ${index} -lt ${num_deps} ]]
@@ -139,7 +184,16 @@ function fetchDependencies() {
     dep_namespace=$(echo "${ext_release}" | jq -r ".dependencies[${index}].namespace")
     dep_extension=$(echo "${ext_release}" | jq -r ".dependencies[${index}].extension")
     dep_id="${dep_namespace}.${dep_extension}"
-    dep_release=$(getCompatibleRelease ${dep_id})
+    # Prefer an explicit pin from extension-list.json so deps cannot publish a
+    # newer "latest compatible" build (e.g. mta-core 8.3.3 via mta-java).
+    pinned_version=$(getPinnedVersion ${dep_id})
+    dep_release=$(resolveExtensionRelease ${dep_id} "${pinned_version}")
+    if [[ ${dep_release} == "not-found" || ${dep_release} == "no-stable-release-found" || -z ${dep_release} ]]
+    then
+      echo "ERROR: Skipping dependency ${dep_id}; could not resolve a release" >&2
+      index=$(( ${index} + 1 ))
+      continue
+    fi
     dep_url=$(echo "${dep_release}" | jq -r '.files.download')
     downloadExtension ${dep_url} ${dep_id//./-}.vsix $(echo ${dep_id} | cut -d"." -f1)
     index=$(( ${index} + 1 ))
@@ -152,7 +206,9 @@ function download() {
   ARCH=$(jq -r '.architecture' ${EXTENSION_FILE})
   local index=0
   local num_ext=$(jq -r '.extensions | length' ${EXTENSION_FILE})
-  local count=0
+  local ext_version
+  local ext_release
+  local ext_url
 
   while [[ ${index} -lt ${num_ext} ]]
   do
@@ -162,27 +218,16 @@ function download() {
     then
       ext_url=$(jq -r ".extensions[${index}].url" ${EXTENSION_FILE})
       downloadExtension ${ext_url} ${ext_id//./-}.vsix $(echo ${ext_id} | cut -d"." -f1)
+      index=$(( ${index} + 1 ))
       continue
     fi
-    has_version=$(jq ".extensions[${index}] | has(\"version\")" ${EXTENSION_FILE})
-    if [[ ${has_version} == "true" ]]
+    ext_version=$(getPinnedVersion ${ext_id})
+    ext_release=$(resolveExtensionRelease ${ext_id} "${ext_version}")
+    if [[ ${ext_release} == "not-found" || ${ext_release} == "no-stable-release-found" || -z ${ext_release} ]]
     then
-      ext_version=$(jq -r ".extensions[${index}].version" ${EXTENSION_FILE})
-      ext_data=$(curl -X GET "https://open-vsx.org/api/v2/-/query?extensionId=${ext_id}&targetPlatform=${ARCH}&extensionVersion=${ext_version}&offset=0" -H 'accept: application/json')
-      count=$(echo "${ext_data}" | jq -r '.totalSize')
-      if [[ ${count} -eq 0 ]]
-      then
-        ext_data=$(curl -X GET "https://open-vsx.org/api/v2/-/query?extensionId=${ext_id}&targetPlatform=universal&extensionVersion=${ext_version}&offset=0" -H 'accept: application/json')
-        count=$(echo "${ext_data}" | jq -s '. | length')
-        if [[ ${count} -eq 0 ]]
-        then
-          echo "ERROR: Extension ${ext_id} not found"
-          continue
-        fi
-      fi
-      ext_release=$(echo "${ext_data}" | jq -c ".extensions[0]")
-    else
-      ext_release=$(getCompatibleRelease ${ext_id})
+      echo "ERROR: Skipping ${ext_id}; could not resolve a release" >&2
+      index=$(( ${index} + 1 ))
+      continue
     fi
     fetchDependencies "${ext_release}"
     ext_url=$(echo "${ext_release}" | jq -r '.files.download')
