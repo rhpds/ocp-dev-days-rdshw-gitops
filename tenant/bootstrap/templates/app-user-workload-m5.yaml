@@ -8,8 +8,6 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-    - pre-delete-finalizer.argocd.argoproj.io
-    - pre-delete-finalizer.argocd.argoproj.io/cleanup
 spec:
   destination:
     namespace: {{ .Values.argocd.namespace }}

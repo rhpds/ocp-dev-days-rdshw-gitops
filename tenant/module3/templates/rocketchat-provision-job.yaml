@@ -145,23 +145,26 @@ data:
               X-Auth-Token: "{{ "{{" }} admin_token {{ "}}" }}"
             status_code: [200, 400]
 
-        - name: Wait for workspace service
+        # The operator assigns an ID even when the workspace has never started.
+        # Build its future Service name without starting a workspace pod.
+        - name: Wait for workspace ID
           kubernetes.core.k8s_info:
-            kind: Service
+            api_version: workspace.devfile.io/v1alpha2
+            kind: DevWorkspace
+            name: {{ .Values.devworkspace.name | quote }}
             namespace: "{{ "{{" }} tenant_namespace {{ "}}" }}"
-          register: r_services
+          register: r_workspace
           retries: 30
           delay: 5
-          until: r_services.resources | selectattr('metadata.name', 'match', '^workspace') | list | length > 0
-          failed_when: false
+          until: >-
+            r_workspace.resources | length > 0 and
+            (r_workspace.resources[0].status.devworkspaceId | default('') | length > 0)
 
         - name: Set workspace service name
           ansible.builtin.set_fact:
-            workspace_svc: "{{ "{{" }} (r_services.resources | selectattr('metadata.name', 'match', '^workspace') | first).metadata.name {{ "}}" }}"
-          when: r_services.resources | selectattr('metadata.name', 'match', '^workspace') | list | length > 0
+            workspace_svc: "{{ "{{" }} r_workspace.resources[0].status.devworkspaceId {{ "}}" }}-service"
 
         - name: Create AI Support webhook
-          when: workspace_svc is defined
           block:
             - name: Set workspace URL
               ansible.builtin.set_fact:
